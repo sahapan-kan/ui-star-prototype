@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STAR — คอร์สเรียน</title>
+<!-- PROTOTYPE (throwaway) — courses page. Wording: copy.js (COPY.courses) · colours/config: kit.js · shared styles: kit.css -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap">
+<style>html.ld-on{background:#E8F1FF}</style>
+<script>try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.className="ld-on ld-hold"}catch(e){}</script>
+<link rel="stylesheet" href="kit.css">
+</head>
+<body>
+<div id="root"></div>
+<script src="copy.js"></script>
+<script src="kit.js"></script>
+<script>
+const COVERS = {"math": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20320%20174%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Crect%20width%3D%22320%22%20height%3D%22174%22%20fill%3D%22%23DCEBFF%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.55%22%3E%3Cpath%20d%3D%22M262%2022l16%209v18l-16%209-16-9V31z%22/%3E%3Cpath%20d%3D%22M40%20120l12%207v14l-12%207-12-7v-14z%22/%3E%3Ccircle%20cx%3D%22292%22%20cy%3D%22130%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2240%22%20r%3D%224%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%2322324F%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M108%20138L160%2046l52%2092z%22%20fill%3D%22%23FFD36B%22/%3E%3Cpath%20d%3D%22M160%2076l-26%2046h52z%22%20fill%3D%22%23FFF3D1%22/%3E%3Crect%20x%3D%2296%22%20y%3D%22134%22%20width%3D%22128%22%20height%3D%2218%22%20rx%3D%224%22%20fill%3D%22%237FB2FF%22/%3E%3Cpath%20d%3D%22M112%20134v8M128%20134v6M144%20134v8M160%20134v6M176%20134v8M192%20134v6M208%20134v8%22/%3E%3Ccircle%20cx%3D%22228%22%20cy%3D%2268%22%20r%3D%2220%22%20fill%3D%22%23FF8FA3%22/%3E%3Cpath%20d%3D%22M220%2068h16M228%2060v16%22/%3E%3Crect%20x%3D%2278%22%20y%3D%2252%22%20width%3D%2234%22%20height%3D%2234%22%20rx%3D%228%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M88%2069h14%22/%3E%3Ccircle%20cx%3D%2295%22%20cy%3D%2262%22%20r%3D%221.5%22%20fill%3D%22%2322324F%22/%3E%3Ccircle%20cx%3D%2295%22%20cy%3D%2276%22%20r%3D%221.5%22%20fill%3D%22%2322324F%22/%3E%3C/g%3E%3C/svg%3E", "thai": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20320%20174%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Crect%20width%3D%22320%22%20height%3D%22174%22%20fill%3D%22%23FFE6CF%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.55%22%3E%3Cpath%20d%3D%22M262%2022l16%209v18l-16%209-16-9V31z%22/%3E%3Cpath%20d%3D%22M40%20120l12%207v14l-12%207-12-7v-14z%22/%3E%3Ccircle%20cx%3D%22292%22%20cy%3D%22130%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2240%22%20r%3D%224%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%2322324F%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M160%2058c-20-12-44-12-64-6v86c20-6%2044-6%2064%206z%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M160%2058c20-12%2044-12%2064-6v86c-20-6-44-6-64%206z%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M160%2058v86%22/%3E%3Cpath%20d%3D%22M108%2076c12-3%2026-3%2040%201M108%2092c12-3%2026-3%2040%201M108%20108c12-3%2026-3%2040%201M172%2077c14-4%2028-4%2040-1M172%2093c14-4%2028-4%2040-1M172%20109c14-4%2028-4%2040-1%22%20stroke-width%3D%222.5%22%20opacity%3D%22.5%22/%3E%3Crect%20x%3D%22214%22%20y%3D%2230%22%20width%3D%2256%22%20height%3D%2246%22%20rx%3D%2214%22%20fill%3D%22%23FF9B57%22/%3E%3Cpath%20d%3D%22M228%2076l-6%2012%2016-12%22/%3E%3C/g%3E%3Ctext%20x%3D%22242%22%20y%3D%2263%22%20text-anchor%3D%22middle%22%20font-family%3D%22Sarabun%2C%20sans-serif%22%20font-size%3D%2226%22%20font-weight%3D%22700%22%20fill%3D%22%23FFFFFF%22%3E%E0%B8%81%3C/text%3E%3C/svg%3E", "sci": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20320%20174%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Crect%20width%3D%22320%22%20height%3D%22174%22%20fill%3D%22%23DDF3C9%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.55%22%3E%3Cpath%20d%3D%22M262%2022l16%209v18l-16%209-16-9V31z%22/%3E%3Cpath%20d%3D%22M40%20120l12%207v14l-12%207-12-7v-14z%22/%3E%3Ccircle%20cx%3D%22292%22%20cy%3D%22130%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2240%22%20r%3D%224%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%2322324F%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M90%20144h140%22/%3E%3Cpath%20d%3D%22M104%20144V44M104%2060h24%22/%3E%3Crect%20x%3D%22124%22%20y%3D%2256%22%20width%3D%2216%22%20height%3D%2270%22%20rx%3D%228%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M124%2096h16v22a8%208%200%200%201-16%200z%22%20fill%3D%22%23FFB547%22/%3E%3Cpath%20d%3D%22M170%2060h20v26l24%2044a8%208%200%200%201-7%2012h-54a8%208%200%200%201-7-12l24-44z%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M161%20112h38l10%2018a8%208%200%200%201-7%2012h-44a8%208%200%200%201-7-12z%22%20fill%3D%22%23FF8FB1%22/%3E%3Cpath%20d%3D%22M226%2096h12v14l14%2022a6%206%200%200%201-5%209h-30a6%206%200%200%201-5-9l14-22z%22%20fill%3D%22%239C8CFF%22/%3E%3Ccircle%20cx%3D%22232%22%20cy%3D%2272%22%20r%3D%225%22%20fill%3D%22%23FFFFFF%22/%3E%3Ccircle%20cx%3D%22244%22%20cy%3D%2260%22%20r%3D%227%22%20fill%3D%22%23FFFFFF%22/%3E%3C/g%3E%3C/svg%3E", "eng": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20320%20174%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Crect%20width%3D%22320%22%20height%3D%22174%22%20fill%3D%22%23EADFFF%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.55%22%3E%3Cpath%20d%3D%22M262%2022l16%209v18l-16%209-16-9V31z%22/%3E%3Cpath%20d%3D%22M40%20120l12%207v14l-12%207-12-7v-14z%22/%3E%3Ccircle%20cx%3D%22292%22%20cy%3D%22130%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2240%22%20r%3D%224%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%2322324F%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Crect%20x%3D%2278%22%20y%3D%2244%22%20width%3D%22104%22%20height%3D%2262%22%20rx%3D%2218%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M104%20106l-8%2018%2022-18%22/%3E%3Crect%20x%3D%22150%22%20y%3D%2284%22%20width%3D%2296%22%20height%3D%2254%22%20rx%3D%2218%22%20fill%3D%22%237FB2FF%22/%3E%3Cpath%20d%3D%22M222%20138l8%2016-20-16%22/%3E%3C/g%3E%3Ctext%20x%3D%22130%22%20y%3D%2284%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2228%22%20font-weight%3D%22700%22%20fill%3D%22%2322324F%22%3EHello%21%3C/text%3E%3Ctext%20x%3D%22198%22%20y%3D%22119%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-size%3D%2224%22%20font-weight%3D%22700%22%20fill%3D%22%23FFFFFF%22%3EHi%20%3A%29%3C/text%3E%3C/svg%3E", "soc": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20320%20174%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Crect%20width%3D%22320%22%20height%3D%22174%22%20fill%3D%22%23FFF1BF%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.55%22%3E%3Cpath%20d%3D%22M262%2022l16%209v18l-16%209-16-9V31z%22/%3E%3Cpath%20d%3D%22M40%20120l12%207v14l-12%207-12-7v-14z%22/%3E%3Ccircle%20cx%3D%22292%22%20cy%3D%22130%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2240%22%20r%3D%224%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%2322324F%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Ccircle%20cx%3D%22160%22%20cy%3D%2288%22%20r%3D%2248%22%20fill%3D%22%237FC8FF%22/%3E%3Cpath%20d%3D%22M128%2066c10%204%2014%2012%2010%2020s4%2014%2012%2014%208%2010%204%2018M176%2046c-4%2010%204%2016%2012%2014s12%208%208%2016-6%2014%202%2020%22%20fill%3D%22none%22/%3E%3Cpath%20d%3D%22M132%2062c8-2%2016%204%2014%2012-2%208-12%206-14%2014-1%206%206%2010%204%2016-8-6-14-18-12-28%201-6%204-12%208-14z%22%20fill%3D%22%238FD694%22/%3E%3Cpath%20d%3D%22M178%2060c8%200%2014%208%2012%2016-2%206-8%206-8%2014%200%206%206%2010%202%2016-6-2-12-10-12-20%200-10%200-26%206-26z%22%20fill%3D%22%238FD694%22/%3E%3Cpath%20d%3D%22M112%20140h96%22%20/%3E%3Cpath%20d%3D%22M160%20136v-0%22%20/%3E%3C/g%3E%3C/svg%3E", "hist": "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20320%20174%22%20preserveAspectRatio%3D%22xMidYMid%20slice%22%3E%3Crect%20width%3D%22320%22%20height%3D%22174%22%20fill%3D%22%23FFDCDE%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FFFFFF%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.55%22%3E%3Cpath%20d%3D%22M262%2022l16%209v18l-16%209-16-9V31z%22/%3E%3Cpath%20d%3D%22M40%20120l12%207v14l-12%207-12-7v-14z%22/%3E%3Ccircle%20cx%3D%22292%22%20cy%3D%22130%22%20r%3D%226%22/%3E%3Ccircle%20cx%3D%2224%22%20cy%3D%2240%22%20r%3D%224%22/%3E%3C/g%3E%3Cg%20stroke%3D%22%2322324F%22%20stroke-width%3D%223%22%20stroke-linejoin%3D%22round%22%20stroke-linecap%3D%22round%22%3E%3Cpath%20d%3D%22M160%2030l8%2022h-16z%22%20fill%3D%22%23FFD36B%22/%3E%3Cpath%20d%3D%22M146%2052h28l6%2022h-40z%22%20fill%3D%22%23FFD36B%22/%3E%3Cpath%20d%3D%22M134%2074h52l8%2026h-68z%22%20fill%3D%22%23FFE7A3%22/%3E%3Crect%20x%3D%22118%22%20y%3D%22100%22%20width%3D%2284%22%20height%3D%2244%22%20fill%3D%22%23FFFFFF%22/%3E%3Cpath%20d%3D%22M140%20144v-24a20%2020%200%200%201%2040%200v24%22%20fill%3D%22%23FF9B9B%22/%3E%3Cpath%20d%3D%22M100%20144h120%22/%3E%3Cpath%20d%3D%22M226%20128c8-12%2022-12%2030%200M64%20128c8-12%2022-12%2030%200%22%20opacity%3D%22.7%22/%3E%3C/g%3E%3C/svg%3E"};
+/* =====================================================================
+ * PROTOTYPE page 2: คอร์สเรียน (courses). Wording -> copy.js (COPY.courses).
+ * Colours / look shared with the home page -> kit.js CONFIG.
+ * ===================================================================== */
+const CT = T.courses;
+document.title = CT.pageTitle;
+const TAG_COLOR = { math: '#1976D2', thai: '#C25E00', sci: '#4E8F1F', eng: '#6B4FCF', soc: '#8A6A00', hist: '#C2334A' };
+const statusOf = (c) => (c.done === 0 ? 'new' : c.done >= c.lessons ? 'done' : 'doing');
+const STATUSES = ['all', 'doing', 'new', 'done'];
+const cst = { tab: 'all' };
+const setStatus = (s) => { $('#status').textContent = s; };
+
+function shell() {
+  const middle = `<div class="af-scope" style="flex-grow: 1; min-width: 0; display: flex; align-items: center; gap: 4px;"><a href="${esc(T.navLinks.home || '#')}" class="backBtn" aria-label="${esc(CT.backAria)}" style="flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--icon-base-default); text-decoration: none;"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+    <nav aria-label="${esc(CT.crumbsAria)}" class="af-crumbs"><ol><li><a class="af-crumb" href="${esc(T.navLinks.home || '#')}">${esc(CT.crumbHome)}</a>${afIcon('icon-chevrons-right', 16, 'af-icon af-crumb-sep')}</li><li><span class="af-crumb is-current" aria-current="page">${esc(CT.crumbCourses)}</span></li></ol></nav></div>`;
+  const stats = CT.stats.map((s) => `<div style="display: flex; align-items: center; gap: 10px;"><span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 10px; background: var(--primary-mutedDefault); color: var(--primary-default); display: flex; align-items: center; justify-content: center;">${icon(s.icon, 24)}</span><div><dt style="font-size: 14px; line-height: 20px; color: var(--text-subtle);">${esc(s.label)}</dt><dd style="margin: 0; font-size: 16px; line-height: 24px; font-weight: 700;">${esc(s.value)}</dd></div></div>`).join('');
+  return `
+  ${kitDefs()}
+  <p role="status" class="sr" id="status"></p>
+  ${kitHeader({ middle, coin: kitCoinChip(CONFIG.startCoins) })}
+  <div style="flex-grow: 1; display: flex; flex-wrap: wrap;">
+    <nav class="rail in0" aria-label="${esc(T.navLabel)}" style="flex: 0 0 84px; background: #FFFFFF; display: flex; flex-direction: column;">${kitRail('courses')}</nav>
+    <main style="flex: 999 1 560px; min-width: 0; background: #FAFAFA; border: 1px solid var(--border-default); border-radius: 16px 0 0 0; padding: 32px 32px 48px; box-sizing: border-box;">
+      <div style="max-width: ${contentMax()}; margin: 0 auto; display: flex; flex-direction: column; gap: 28px;">
+        <section class="in1" aria-labelledby="ch-h" style="margin: -32px -32px 0; padding: 28px 32px 8px; border-radius: 16px 0 0 0; background: linear-gradient(180deg, var(--primary-mutedSelected) 0%, rgba(250,250,250,0) 100%);">
+          <span style="display: inline-flex; align-items: center; height: 40px; margin-left: 22px; padding: 0 16px; border-radius: 10px 10px 0 0; background: var(--primary-default); color: var(--primary-onDefault); font: 600 19px/1 var(--font-sans);">${esc(CT.classTag)}</span>
+          <div style="background: var(--bg-surface); border-radius: 16px; padding: 24px 28px; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.08); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 32px;">
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+              <h1 id="ch-h" style="margin: 0; font-size: 23px; line-height: 32px; font-weight: 600; color: var(--text-default);">${esc(CT.title)}</h1>
+              <dl style="margin: 0; display: flex; flex-wrap: wrap; gap: 12px 32px;">${stats}</dl>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; text-align: right;">${fsBtn('primary', CT.continueButton, 'class="pillBtn"')}</div>
+          </div>
+        </section>
+        <section class="in2" aria-label="${esc(CT.listAria)}" id="listSec" style="display: flex; flex-direction: column; gap: 24px;"></section>
+      </div>
+    </main>
+  </div>`;
+}
+
+function renderList(focusTab) {
+  const all = CT.list;
+  const count = (id) => all.filter((c) => id === 'all' || statusOf(c) === id).length;
+  const order = { doing: 0, new: 1, done: 2 };
+  const shown = all.filter((c) => cst.tab === 'all' || statusOf(c) === cst.tab).sort((x, y) => order[statusOf(x)] - order[statusOf(y)] || y.last - x.last);
+  const tabs = STATUSES.map((id) => { const on = cst.tab === id; return `<button type="button" role="tab" aria-selected="${on}" tabindex="${on ? 0 : -1}" data-tab="${id}" class="af-tab${on ? ' is-selected' : ''}"><span class="af-tab-label">${esc(CT.tabs[id])}</span><span class="af-tab-count">${count(id)}</span></button>`; }).join('');
+  const cards = shown.map((c) => {
+    const k = statusOf(c), pct = Math.round(c.done / c.lessons * 100);
+    const label = k === 'new' ? CT.progressNew : f(CT.progressLabel, { done: c.done, lessons: c.lessons });
+    return `<li style="min-width: 0; display: flex;"><article class="af-course scard" style="width: 100%;">
+      <div class="af-course-cover"><img class="af-course-img" src="${COVERS[c.cover]}" alt="">
+        <span style="position: absolute; left: 0; top: 0; padding: 4px 16px; border-radius: 0 0 14px 0; background: ${TAG_COLOR[c.cover] || 'var(--primary-default)'}; color: #FFFFFF; font: 700 28px/40px var(--font-sans); letter-spacing: .25px;">${esc(CT.gradeTag)}</span>
+        <span class="af-course-menu"><button type="button" class="af-btn af-btn--secondary-accent af-btn--md af-btn--icon-only" aria-label="${esc(f(CT.menuAria, { title: c.title }))}">${afIcon('icon-dots-horizontal', 20)}</button></span></div>
+      <div class="af-course-meta">
+        <div class="af-course-subject">${esc(f(CT.subjectLine, { subject: c.subject }))}</div>
+        <h3 class="af-course-title" style="font-size: 20px; line-height: 28px;">${esc(c.title)}</h3>
+        <p style="margin: auto 0 0; padding-top: 12px; display: flex; align-items: center; gap: 6px; font-size: 16px; line-height: 24px; color: var(--text-base-subtle);">${icon('book-open', 16)}${esc(f(CT.lessons, { n: c.lessons }))}</p>
+        <div class="af-course-foot">${progressBar(pct, label, pct + '%', 'accent')}<button type="button" class="af-btn af-btn--primary af-btn--lg"><span class="af-btn-label">${esc(CT.cardButton[k])}</span></button></div>
+      </div></article></li>`;
+  }).join('');
+  $('#listSec').innerHTML = `
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; border-bottom: 1px solid var(--border-default);"><div class="af-scope" style="margin-bottom: -1px;"><div role="tablist" aria-label="${esc(CT.tabsAria)}" class="af-tabs af-tabs--lg">${tabs}</div></div></div>
+    <ul class="cgrid af-scope" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">${cards}</ul>
+    ${shown.length ? '' : `<div style="padding: 40px 24px; border: 1px dashed var(--border-emphasized); border-radius: 16px; background: var(--bg-surface); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;"><p style="margin: 0; font-size: 18px; line-height: 26px; font-weight: 600;">${esc(CT.emptyTitle)}</p><p style="margin: 0; font-size: 15px; line-height: 22px; color: var(--text-subtle);">${esc(CT.emptyText)}</p><button type="button" class="chip" data-act="clear" style="margin-top: 8px; height: 40px; padding: 0 18px; border-radius: 9999px; border: 1px solid var(--primary-default); background: var(--bg-surface); color: var(--primary-default); font: 600 15px var(--font-sans); cursor: pointer;">${esc(CT.clearFilters)}</button></div>`}`;
+  if (focusTab) { const el = $(`[data-tab="${focusTab}"]`); if (el) el.focus(); }
+}
+function pickTab(id, focus) {
+  cst.tab = id;
+  setStatus(CT.status['show' + id[0].toUpperCase() + id.slice(1)]);
+  renderList(focus ? id : null);
+}
+
+const root = $('#root');
+kitMount(root, CONFIG.reduceMotion);
+root.innerHTML = shell();
+renderList();
+root.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab],[data-act]'); if (!t) return;
+  if (t.dataset.tab) pickTab(t.dataset.tab);
+  else if (t.dataset.act === 'clear') { cst.tab = 'all'; setStatus(CT.status.cleared); renderList(); }
+});
+root.addEventListener('keydown', (e) => {
+  if (!e.target.closest('[data-tab]') || (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft')) return;
+  e.preventDefault();
+  const i = STATUSES.indexOf(cst.tab);
+  pickTab(STATUSES[(i + (e.key === 'ArrowRight' ? 1 : STATUSES.length - 1)) % STATUSES.length], true);
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# publish only the prototype; everything else (design-tool exports, notes, editor config) stays local
+*
+!.gitignore
+!README.md
+!index.html
+!courses.html
+!kit.js
+!kit.css
+!copy.js
+!.nojekyll
