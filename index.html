@@ -32,7 +32,7 @@ function shell() {
   return `
   ${kitDefs()}
   <p role="status" class="sr" id="status"></p>
-  ${kitHeader({ coin: coinChip })}
+  ${kitHeader({ coin: coinChip, active: 'home' })}
   <div style="flex-grow: 1; display: flex; flex-wrap: wrap;">
     <nav class="rail in0" aria-label="${esc(T.navLabel)}" style="flex: 0 0 84px; background: #FFFFFF; display: flex; flex-direction: column;">${kitRail('home')}</nav>
     <main style="flex: 999 1 560px; min-width: 0; background: #FAFAFA; border: 1px solid var(--border-default); border-radius: 16px 0 0 0; padding: 32px 32px 48px; box-sizing: border-box; overflow-x: clip;">
@@ -87,9 +87,9 @@ function renderHero() {
       <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px 12px;">
           <h3 style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 700; color: var(--text-default);">${esc(T.weekTitle)}</h3>
-          <span class="${slam ? 'stampBumpA' : ''}" aria-label="${esc(f(T.weekBadgeAria, { n }))}" style="display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 9999px; background: var(--primary-mutedDefault); color: var(--primary-onMutedDefault); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums;">${esc(f(T.weekBadge, { n }))}</span>
+          <span class="${slam ? 'stampBumpA' : ''}" aria-label="${esc(f(T.weekBadgeAria, { n }))}" style="white-space: nowrap; display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 9999px; background: var(--primary-mutedDefault); color: var(--primary-onMutedDefault); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums;">${esc(f(T.weekBadge, { n }))}</span>
         </div>
-        <ol aria-label="${esc(T.weekTitle)}" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;">${days}</ol>
+        <ol class="wkdays" aria-label="${esc(T.weekTitle)}" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;">${days}</ol>
       </div>
     </div>`;
 }

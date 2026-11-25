@@ -20,6 +20,8 @@ window.COPY = {
 
   // ── Top bar ──────────────────────────────────────────────────────────
   menuButton: 'เปิดเมนู',                   // (screen reader)
+  menuClose: 'ปิดเมนู',                     // (screen reader) mobile drawer close button
+  help: 'ช่วยเหลือ',                        // mobile drawer footer item
   fontSizeGroup: 'ขนาดตัวอักษร',             // (screen reader)
   fontSizeGlyph: 'ก',                        // the sample letter on the 3 size buttons
   notifications: 'การแจ้งเตือน',             // (screen reader)

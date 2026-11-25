@@ -36,7 +36,7 @@ function shell() {
   return `
   ${kitDefs()}
   <p role="status" class="sr" id="status"></p>
-  ${kitHeader({ middle, coin: kitCoinChip(CONFIG.startCoins) })}
+  ${kitHeader({ middle, coin: kitCoinChip(CONFIG.startCoins), active: 'courses' })}
   <div style="flex-grow: 1; display: flex; flex-wrap: wrap;">
     <nav class="rail in0" aria-label="${esc(T.navLabel)}" style="flex: 0 0 84px; background: #FFFFFF; display: flex; flex-direction: column;">${kitRail('courses')}</nav>
     <main style="flex: 999 1 560px; min-width: 0; background: #FAFAFA; border: 1px solid var(--border-default); border-radius: 16px 0 0 0; padding: 32px 32px 48px; box-sizing: border-box;">

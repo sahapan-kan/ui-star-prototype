@@ -94,16 +94,29 @@ function kitRail(active) {
 }
 
 /* middle = html between the menu button and the right-hand tools; coin = html placed before the avatar; fontPressed = 0|1|2 */
-function kitHeader({ middle = "", coin = "", fontPressed = 1 } = {}) {
+function kitHeader({ middle = "", coin = "", fontPressed = 1, active = "home" } = {}) {
   const glyph = (i, fs) => { const on = i === fontPressed; return `<button type="button" aria-pressed="${on}" style="width: 36px; height: 36px; border: 0; border-radius: 9999px; background: ${on ? 'var(--primary-default)' : 'transparent'}; color: ${on ? '#FFFFFF' : 'var(--text-default)'}; font: ${on ? 600 : 500} ${fs}px var(--font-sans); cursor: pointer;">${esc(T.fontSizeGlyph)}</button>`; };
-  return `<header class="in0" style="height: 76px; box-sizing: border-box; background: #FFFFFF; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-    <button type="button" aria-label="${esc(T.menuButton)}" style="width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--icon-default); display: flex; align-items: center; justify-content: center; cursor: pointer;">${icon('menu-burger', 24)}</button>
-    ${middle}
+  const fontGroup = (cls) => `<div role="group" class="${cls}" aria-label="${esc(T.fontSizeGroup)}" style="display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 9999px; background: var(--primary-mutedDefault);">${glyph(0, 14)}${glyph(1, 17)}${glyph(2, 21)}</div>`;
+  /* ponytail: native <dialog> = drawer (focus trap, Esc, backdrop for free). Left rail is hidden <=720px and the same links live here (Figma 38162:28964). */
+  const links = T.navLinks || {};
+  const dnav = NAV.map(([key, ic]) => {
+    const href = links[key], on = key === active, soon = !href;
+    return `<a class="dn-item${on ? ' is-on' : ''}" href="${esc(href || '#')}"${on ? ' aria-current="page"' : ''}${soon ? ` data-soon aria-disabled="true" title="${esc(T.navSoon)}"` : ''}><span class="dn-ic">${icon(ic, 32)}</span><span class="dn-label">${esc(T.nav[key])}</span></a>`;
+  }).join('');
+  const drawer = `<dialog id="navDrawer" class="navDrawer" aria-label="${esc(T.navLabel)}">
+    <div class="dn-top"><button type="button" class="dn-close" data-menu-close aria-label="${esc(T.menuClose)}"><img src="assets/icon-close.svg" width="28" height="28" alt=""></button></div>
+    <nav class="dn-wrap" aria-label="${esc(T.navLabel)}">${dnav}</nav>
+    <div class="dn-wrap" style="flex: none;"><button type="button" class="dn-item dn-help"><img src="assets/icon-help.svg" width="24" height="24" alt=""><span class="dn-label">${esc(T.help)}</span></button></div>
+  </dialog>`;
+  return `${drawer}<header class="in0 hdr" style="height: 76px; box-sizing: border-box; background: #FFFFFF; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+    <button type="button" data-menu-open aria-haspopup="dialog" aria-label="${esc(T.menuButton)}" style="width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--icon-default); display: flex; align-items: center; justify-content: center; cursor: pointer;">${icon('menu-burger', 24)}</button>
+    <span class="hdr-title">${esc(T.nav[active])}</span>
+    <div class="hdr-mid" style="display: contents;">${middle}</div>
     <div style="display: flex; align-items: center; gap: 12px;">
-      <div role="group" aria-label="${esc(T.fontSizeGroup)}" style="display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 9999px; background: var(--primary-mutedDefault);">${glyph(0, 14)}${glyph(1, 17)}${glyph(2, 21)}</div>
+      ${fontGroup('hdr-fs')}
       <button type="button" aria-label="${esc(T.notifications)}" style="width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--icon-default); display: flex; align-items: center; justify-content: center; cursor: pointer;">${icon('bell-notification', 24)}</button>
       ${coin}
-      <button type="button" aria-label="${esc(T.account)}" style="height: 44px; padding: 4px; border: 0; border-radius: 9999px; background: transparent; display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--icon-default);"><span class="fs-avatar fs-avatar--small" title="${esc(T.userName)}" role="img" aria-label="${esc(T.userName)}"><span class="fs-avatar__initials">${esc(T.userInitials)}</span></span>${icon('arrows-down-arrow-hint', 20)}</button>
+      <button type="button" aria-label="${esc(T.account)}" style="height: 44px; padding: 4px; border: 0; border-radius: 9999px; background: transparent; display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--icon-default);"><span class="fs-avatar fs-avatar--small" title="${esc(T.userName)}" role="img" aria-label="${esc(T.userName)}"><span class="fs-avatar__initials">${esc(T.userInitials)}</span></span><span class="hdr-chev" style="display: flex;">${icon('arrows-down-arrow-hint', 20)}</span></button>
     </div>
   </header>`;
 }
@@ -111,7 +124,7 @@ function kitHeader({ middle = "", coin = "", fontPressed = 1 } = {}) {
 /* Starcoin balance chip for the top bar (same on every page) + the gradient defs its coin icon needs */
 const kitCoinChip = (count) => `<span class="coinChip" id="coinChip" role="img" aria-label="${esc(f(T.coinChipAria, { n: count }))}" style="position: relative; display: inline-flex; align-items: center; gap: 8px; height: 40px; box-sizing: border-box; padding: 0 14px 0 8px; border-radius: 9999px; border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-default);">
         <span style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;"><span id="coinIcon" style="display: block; width: 24px; height: 24px;">${S.headerCoin(C, I)}</span></span>
-        <span aria-hidden="true" style="font-size: 18px; line-height: 28px; font-weight: 600; color: var(--text-subtle);">${esc(T.coinLabel)}</span>
+        <span class="hdr-label" aria-hidden="true" style="font-size: 18px; line-height: 28px; font-weight: 600; color: var(--text-subtle);">${esc(T.coinLabel)}</span>
         <span id="count" aria-hidden="true" style="display: inline-block; min-width: 32px; font-size: 18px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums;">${count}</span>
         <span class="plus" id="plus" aria-hidden="true" style="position: absolute; right: calc(100% + 8px); top: 6px; font-size: 20px; font-weight: 700; color: var(--secondary-onMutedDefault);">${esc(f(T.coinPlus, { n: reward() }))}</span>
       </span>`;
@@ -119,6 +132,13 @@ const kitDefs = () => `<svg width="0" height="0" aria-hidden="true" style="posit
 
 /* menu items with no page yet do nothing */
 document.addEventListener('click', (e) => { if (e.target.closest('a[data-soon]')) e.preventDefault(); });
+
+/* hamburger -> drawer; click the backdrop (the dialog itself) or x to close */
+document.addEventListener('click', (e) => {
+  const d = document.getElementById('navDrawer'); if (!d) return;
+  if (e.target.closest('[data-menu-open]')) d.showModal();
+  else if (e.target === d || e.target.closest('[data-menu-close]')) d.close();
+});
 
 /* apply the colour theme to the page root */
 function kitMount(root, motionOff) {
