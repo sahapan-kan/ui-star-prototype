@@ -28,6 +28,7 @@ window.COPY = {
   account: 'บัญชีของฉัน',                    // (screen reader)
   loaderText: 'Loading...',                  // text under the rocket on the page-change loader
   coinLabel: 'Starcoin',
+  coinReward: 2,                             // Starcoin shown in the floating "+n"
   coinPlus: '+{n}',                          // floating "+n" when a reward is collected
   coinChipAria: 'Starcoin {n} เหรียญ',       // (screen reader)
 
@@ -53,77 +54,47 @@ window.COPY = {
   navSoon: 'ยังไม่มีหน้านี้ในต้นแบบ',          // hover text for items with no page
 
   // ── Blue hero banner ─────────────────────────────────────────────────
-  greeting: 'ฝึกให้เก่งขึ้นทีละนิด ทำภารกิจ และสะสมดาวไปด้วยกัน',
-  headline: 'พร้อมค้นพบดาวของตัวเองหรือยัง?',
+  greeting: 'สวัสดี พิมพ์ชนก · นักบินอวกาศพร้อมออกเดินทางแล้ว!',
+  headline: 'อีกแค่ 1 ชุด ดาวของคุณจะสว่างต่อเป็นวันที่ 13!',
   startButton: 'เริ่มทำแบบฝึก',
   astronautAria: 'ภาพนักบินอวกาศลอยตัวกลางอวกาศ', // (screen reader)
-
-  // ── Streak card (inside the banner) ─────────────────────────────────
-  streakStarAria: 'ดาวต่อเนื่อง 12 วัน แตะเพื่อให้ดาวเปล่งแสง', // (screen reader)
-  streakTitle: 'ทำแบบฝึกหัดต่อเนื่อง',
-  streakNumber: '12',
-  streakUnit: 'วัน',
-  streakHint: 'อีก 4 วันทำลายสถิติ',
-
-  // ── Weekly login stamps ──────────────────────────────────────────────
-  weekTitle: 'การเข้าสู่ระบบสัปดาห์นี้',
-  weekBadge: '{n}/7 วัน',
-  weekBadgeAria: 'ได้ {n} จาก 7 วัน',          // (screen reader)
-  weekDays: ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'],
-  weekToday: 'วันนี้',
-  stampTodayAria: 'บันทึกการเข้าสู่ระบบวันนี้',  // (screen reader) the dashed "today" button
-  giftBadge: '+10',                            // bonus on day 7
-  daySrStamped: 'ปั๊มแล้ว',                    // (screen reader)
-  daySrToday: 'ยังไม่ได้ปั๊ม',                 // (screen reader)
-  daySrGift: 'รางวัล 10 Starcoin',             // (screen reader)
-  daySrFuture: 'ยังไม่ถึง',                    // (screen reader)
-
-  // ── Missions ─────────────────────────────────────────────────────────
-  missionsTitle: 'ภารกิจของฉัน',
-  progressAria: 'ความคืบหน้า',                 // (screen reader)
-  missionButton: 'ทำภารกิจนี้',
-  newTag: 'ใหม่',
-
-  // Card 1 — the one you can claim a reward on
-  // reward = number of Starcoin paid out (the coin counter, the "+n" and the number of flying coins all follow it)
-  mission1: { title: 'ส่งแบบฝึกหัดตรงเวลา 1 ชุด', timeLeft: 'เหลือเวลาอีก 4 วัน', badge: '1/1', reward: 2 },
-  claimCoinAria: 'แตะเพื่อรับ {n} Starcoin',   // (screen reader) the coin button
-  claimButton: 'รับรางวัล',
-  claiming: 'กำลังรับ…',
-  missionDone: 'ภารกิจสำเร็จแล้ว',
-  claimedStub: 'รับแล้ว',
-
-  // Card that slides in after claiming
-  missionNew: { title: 'อ่านสรุปความรู้ 2 เรื่อง', timeLeft: 'เหลือเวลาอีก 4 วัน', badge: '0/2', reward: '4' },
-
-  // Cards 2 and 3
-  // badge is "done/total" - the progress bar and the badge colour are worked out from it
-  mission2: { title: 'เข้าใช้งาน STAR อย่างน้อย 3 วัน/สัปดาห์', timeLeft: 'เหลือเวลาอีก 4 วัน', badge: '2/3', reward: 2 },
-  mission3: { title: 'ดูสื่อในคลังสรุปความรู้ 1 ชิ้น', timeLeft: 'เหลือเวลาอีก 4 วัน', badge: '0/1', reward: 1 },
 
   // ── Assignments ──────────────────────────────────────────────────────
   assignTitle: 'งานที่ได้รับมอบหมาย',
   filterPrefix: 'ตัวกรอง:',
-  filterPlaceholder: 'กลุ่มสาระฯ',            // button text while "all" is selected
-  filterListAria: 'กลุ่มสาระฯ',               // (screen reader)
-  filterButtonAria: 'ตัวกรองกลุ่มสาระฯ: {value}', // (screen reader)
-  filterAllMenu: 'ทุกกลุ่มสาระฯ',             // first menu option
-  tabsAria: 'สถานะงานมอบหมาย',                // (screen reader)
-  tabs: { todo: 'งานที่ต้องทำ', late: 'เลยกำหนด', done: 'ส่งแล้ว' },
-  empty: {
-    todo: { title: 'ไม่มีงานที่ต้องทำ', text: 'ลองเลือกวิชาอื่นหรือดูแท็บอื่น' },
-    late: { title: 'ไม่มีงานที่เลยกำหนด', text: 'เยี่ยมมาก ส่งงานตรงเวลาทุกชิ้น' },
-    done: { title: 'ยังไม่มีงานที่ส่งแล้ว', text: 'ลองเลือกวิชาอื่นหรือดูแท็บอื่น' },
-  },
+  filterPlaceholder: 'กลุ่มสาระฯ',            // filter button text
+  filterButtonAria: 'ตัวกรองกลุ่มสาระฯ',       // (screen reader)
+  filterCountAria: ' เลือกอยู่ {n} กลุ่ม',      // (screen reader) added to the line above when some are ticked
+  filterTitle: 'ตัวกรอง',                      // filter dialog
+  filterSub: 'กลุ่มสาระการเรียนรู้',
+  filterClose: 'ปิด',                          // (screen reader)
+  filterClear: 'ล้างค่าทั้งหมด',
+  filterCancel: 'ยกเลิก',
+  filterApply: 'เลือกตัวกรอง',
+  emptyTitle: 'ไม่มีงานที่ต้องทำ',
+  emptyText: 'ลองเลือกวิชาอื่นหรือดูแท็บอื่น',
   dueDateSr: 'วันที่ส่ง',                    // (screen reader)
   dueTimeSr: 'เวลาส่ง',                      // (screen reader)
   timeSuffix: ' น.',                          // "16:00 น."
   progressUnit: 'ข้อ',                        // "3 / 8 ข้อ"
-  cardButton: { todo: 'ทำงานมอบหมาย', late: 'ส่งงานล่าช้า', done: 'ดูงานมอบหมาย' },
+  cardButton: 'ทำงานมอบหมาย',
   weekdaysShort: ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'],
   monthsShort: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'],
 
-  // state: todo = ต้องทำ, late = เลยกำหนด, done = ส่งแล้ว
+  // the filter dialog's tiles (icon = SVG path)
+  subjectGroups: [
+    { label: 'ภาษาไทย', icon: 'M7 5h18a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM10 19v-6a3 3 0 0 1 6 0v6M16 15h6v4a2 2 0 0 1-4 0' },
+    { label: 'คณิตศาสตร์', icon: 'M8 10h6M8 15h6M8 20h6M20 8v6M17 11h6M18 18l4 4M22 18l-4 4' },
+    { label: 'วิทยาศาสตร์และเทคโนโลยี', icon: 'M13 4h6M14 4v8l-7 12a2 2 0 0 0 2 3h14a2 2 0 0 0 2-3l-7-12V4M10 19h12' },
+    { label: 'สังคมศึกษา ศาสนา และวัฒนธรรม', icon: 'M16 4a12 12 0 1 0 0 24a12 12 0 0 0 0-24zM6 13c4 0 5 3 8 3s2 4 5 5M19 5c-1 3 1 5 4 5s3 3 5 3' },
+    { label: 'สุขศึกษาและพลศึกษา', icon: 'M16 4l10 4v7c0 6-4.5 11-10 13C10.5 26 6 21 6 15V8zM16 21l-4-4a2.6 2.6 0 0 1 4-3.3a2.6 2.6 0 0 1 4 3.3z' },
+    { label: 'ศิลปะ', icon: 'M26 6a2.8 2.8 0 0 0-4 0L12 16l4 4l10-10a2.8 2.8 0 0 0 0-4zM12 16c-3 0-5 2-5 5c0 2-1 3-2 3c2 2 6 2 8 0c2-2 3-4 3-4' },
+    { label: 'การงานอาชีพ', icon: 'M5 7h22v14H5zM13 21l-1 5M19 21l1 5M10 26h12' },
+    { label: 'ภาษาต่างประเทศ', icon: 'M7 5h18a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM9 16l3-8l3 8M10 13h4M17 17h6l-6 6h6' },
+    { label: 'อื่นๆ', icon: 'M9 16h.01M16 16h.01M23 16h.01' }
+  ],
+
+  // only state 'todo' is shown on the home page (the 4 nearest due dates)
   assignments: [
     { subject: 'คณิตศาสตร์', title: 'แบบฝึกหัดเศษส่วนและทศนิยม', due: '2026-11-20T16:00', done: 10, total: 10, state: 'done' },
     { subject: 'ภาษาไทย', title: 'อ่านจับใจความ “นิทานพื้นบ้าน”', due: '2026-11-24T23:59', done: 5, total: 5, state: 'done' },
@@ -131,19 +102,35 @@ window.COPY = {
     { subject: 'ภาษาไทย', title: 'เรียงความ “ความฝันของฉัน”', due: '2026-11-30T08:30', done: 1, total: 3, state: 'todo' },
     { subject: 'คณิตศาสตร์', title: 'แบบฝึกหัดสมการเชิงเส้น ชุดที่ 2', due: '2026-11-27T16:00', done: 6, total: 10, state: 'todo' },
     { subject: 'วิทยาศาสตร์และเทคโนโลยี', title: 'สรุปบทเรียนเรื่องระบบสุริยะ', due: '2026-12-02T23:59', done: 0, total: 5, state: 'todo' },
+    { subject: 'ภาษาต่างประเทศ', title: 'Vocabulary Quiz: Daily Routines', due: '2026-11-28T12:00', done: 4, total: 15, state: 'todo' },
+    { subject: 'สังคมศึกษา ศาสนา และวัฒนธรรม', title: 'ใบงานหน้าที่พลเมืองในชุมชน', due: '2026-12-01T16:00', done: 0, total: 6, state: 'todo' },
+    { subject: 'คณิตศาสตร์', title: 'โจทย์ปัญหาสมการ ชุดที่ 3', due: '2026-12-03T16:00', done: 0, total: 8, state: 'todo' },
+    { subject: 'ศิลปะ', title: 'ร่างภาพทิวทัศน์ด้วยดินสอ', due: '2026-12-04T23:59', done: 1, total: 4, state: 'todo' },
+    { subject: 'สุขศึกษาและพลศึกษา', title: 'บันทึกการออกกำลังกาย 1 สัปดาห์', due: '2026-12-06T20:00', done: 2, total: 7, state: 'todo' },
+    { subject: 'การงานอาชีพ', title: 'แผนงานโครงงานปลูกผักสวนครัว', due: '2026-12-08T16:00', done: 0, total: 5, state: 'todo' }
   ],
+
+  // ── My courses (home page) ───────────────────────────────────────────
+  myCourses: {
+    title: 'คอร์สของฉัน',
+    all: 'ดูคอร์สทั้งหมด',
+    lessons: '{n} แบบฝึกหัด',
+    progress: '{done} / {lessons} บท',
+    cardButton: { doing: 'ทำแบบฝึก', done: 'ทบทวน' },   // done = finished all lessons
+    // cover = picture key (math, thai, sci, eng, soc, hist)
+    list: [
+      { cover: 'thai', subject: 'ภาษาไทย', title: 'ภาษาไทย', done: 14, lessons: 20 },
+      { cover: 'math', subject: 'คณิตศาสตร์', title: 'คณิตศาสตร์', done: 9, lessons: 20 },
+      { cover: 'sci', subject: 'วิทยาศาสตร์และเทคโนโลยี', title: 'วิทยาศาสตร์และเทคโนโลยี', done: 6, lessons: 18 },
+      { cover: 'soc', subject: 'สังคมศึกษา ศาสนา และวัฒนธรรม', title: 'สังคมศึกษา ศาสนา และวัฒนธรรม', done: 0, lessons: 14 },
+      { cover: 'eng', subject: 'ภาษาต่างประเทศ', title: 'ภาษาอังกฤษ', done: 2, lessons: 16 },
+    ],
+  },
 
   // ── Screen-reader announcements (not visible) ───────────────────────
   status: {
-    stamped: 'บันทึกการเข้าสู่ระบบวันนี้แล้ว รวม {n} จาก 7 วัน',
-    claiming: 'กำลังรับ Starcoin',
-    claimed: 'ได้รับ {n} Starcoin รวม {total} Starcoin',
-    missionDone: 'ภารกิจสำเร็จแล้ว {next}',
-    nextNew: 'มีภารกิจใหม่เข้ามา 1 ภารกิจ',
-    nextLeft: 'เหลือภารกิจที่กำลังทำอีก 2 ภารกิจ',
-    showTab: 'แสดง{tab}',
-    showAllSubjects: 'แสดงงานมอบหมายทุกวิชา',
-    showSubject: 'แสดงงานมอบหมายวิชา{subject}',
+    filtered: 'กรองตาม {subjects}',
+    filterCleared: 'แสดงงานทุกกลุ่มสาระ',
   },
 };
 
@@ -178,7 +165,7 @@ window.COPY.courses = {
   gradeTag: 'ม.2',                               // big tag on the cover corner
   subjectLine: '{subject} • ภาคเรียนที่ 2',
   lessons: '{n} บทเรียน',
-  progressLabel: '{done} / {lessons} บทเรียน',
+  progressLabel: '{done} / {lessons} บท',
   progressNew: 'ยังไม่เริ่ม',
   menuAria: 'ตัวเลือกเพิ่มเติมของ {title}',      // (screen reader) the "…" button
   cardButton: { doing: 'ทำแบบฝึก', new: 'เริ่มเรียน', done: 'ทบทวน' },

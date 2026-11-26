@@ -17,282 +17,152 @@
 <script src="kit.js"></script>
 <script>
 /* ---------- state ---------- */
-const st = { phase: 'ready', count: CONFIG.startCoins, plus: 0, stamped: false, slam: false, menuOpen: false, atab: 'todo', subject: 'all', gone: false, leaving: false };
-const timers = [];
-const later = (fn, ms) => timers.push(setTimeout(fn, ms));
-const still = () => { if (CONFIG.reduceMotion) return true; try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+const st = { subjects: [], draft: [] };   // subjects = applied filter, draft = ticked in the open dialog
 const setStatus = (s) => { $('#status').textContent = s; };
-const coinH = Math.round(CONFIG.coinSize * 124 / 120);
-const stubW = Math.max(96, CONFIG.coinSize + 32);
-const emptyW = Math.round(CONFIG.coinSize * 0.8), emptyH = Math.round(CONFIG.coinSize * 0.8 * 124 / 120);
+const H2 = 'margin: 0; font-size: 30px; line-height: 42px; font-weight: 600; color: var(--primary-default);';
 
 /* ---------- static shell ---------- */
 function shell() {
-  const coinChip = kitCoinChip(st.count);
+  const MC = T.myCourses;
   return `
-  ${kitDefs()}
   <p role="status" class="sr" id="status"></p>
-  ${kitHeader({ coin: coinChip, active: 'home' })}
+  ${kitHeader({ active: 'home' })}
   <div style="flex-grow: 1; display: flex; flex-wrap: wrap;">
     <nav class="rail in0" aria-label="${esc(T.navLabel)}" style="flex: 0 0 84px; background: #FFFFFF; display: flex; flex-direction: column;">${kitRail('home')}</nav>
     <main style="flex: 999 1 560px; min-width: 0; background: #FAFAFA; border: 1px solid var(--border-default); border-radius: 16px 0 0 0; padding: 32px 32px 48px; box-sizing: border-box; overflow-x: clip;">
       <div style="max-width: ${contentMax()}; margin: 0 auto; display: flex; flex-direction: column; gap: 28px;">
         <section class="in1" aria-labelledby="hello-h" style="position: relative; overflow: hidden; border-radius: 20px; background: var(--primary-default); color: var(--primary-onDefault); padding: 36px 40px 0; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 24px 40px; min-height: 248px; box-sizing: border-box;">
           ${S.heroDecor(C, I)}
-          <div id="heroCol" style="position: relative; flex: 1 1 440px; min-width: 0; padding-bottom: 36px; display: flex; flex-direction: column; gap: 12px;"></div>
+          <div id="heroCol" style="position: relative; flex: 1 1 440px; min-width: 0; align-self: center; padding-bottom: 36px; display: flex; flex-direction: column; gap: 12px;">
+            <p style="margin: 0; font-size: 18px; line-height: 28px; color: var(--primary-mutedDefault);">${esc(T.greeting)}</p>
+            <h1 id="hello-h" style="margin: 0; font-size: 32px; line-height: 44px; font-weight: 700; letter-spacing: 0.25px;">${esc(T.headline)}</h1>
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px;">
+              <a href="#" class="ctaMain" style="display: inline-flex; align-items: center; gap: 10px; height: 44px; box-sizing: border-box; padding: 0 20px 0 6px; border-radius: 9999px; background: var(--bg-surface); color: var(--primary-default); font-size: 18px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(0,12,40,.3);"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 9999px; background: var(--primary-default); display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5.5v13l10.5-6.5z" fill="#FFFFFF"></path></svg></span>${esc(T.startButton)}</a>
+            </div>
+          </div>
           <div style="position: relative; flex: 0 0 320px; height: 236px; align-self: flex-end;">${S.astro(C, I, 0, 0, esc(T.astronautAria))}</div>
         </section>
-        <section class="in2" aria-labelledby="missions-h" id="missionsSec" style="display: flex; flex-direction: column; gap: 16px;"></section>
         <section class="in3" aria-labelledby="assign-h" id="assignSec" style="display: flex; flex-direction: column; gap: 16px; margin-top: 12px;"></section>
+        <section class="in3" aria-labelledby="mycourse-h" style="display: flex; flex-direction: column; gap: 16px; margin-top: 12px;">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;">
+            <h2 id="mycourse-h" style="${H2}">${esc(MC.title)}</h2>
+            <a href="${esc(T.navLinks.courses || '#')}" style="font-size: 18px; line-height: 28px; font-weight: 600;">${esc(MC.all)}</a>
+          </div>
+          <ul class="cgrid hgrid af-scope" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">${MC.list.map(courseCard).join('')}</ul>
+        </section>
       </div>
     </main>
   </div>
-  <div id="fly" aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; z-index: 20; overflow: hidden;"></div>`;
-}
-
-/* ---------- hero (greeting + streak + weekly stamps) ---------- */
-function renderHero() {
-  const stamped = st.stamped, slam = st.slam;
-  const n = stamped ? 4 : 3;
-  const days = T.weekDays.map((name, i) => {
-    const today = i === 3, done = i < 3 || (today && stamped), gift = i === 6, open = today && !stamped, future = !done && !today && !gift;
-    const now = today && stamped && slam;
-    const sr = done ? T.daySrStamped : (today ? T.daySrToday : (gift ? T.daySrGift : T.daySrFuture));
-    let cell = '';
-    if (done) cell = `<span class="${now ? 'slam' : ''}" style="display: block; width: 52px; height: 54px; --r: 0deg;">${S.dayCoin(C, I, 52, 54)}</span><span class="${now ? 'inkRing' : ''}" aria-hidden="true" style="position: absolute; inset: 0; border-radius: 9999px; border: 3px solid var(--secondary-default); opacity: 0; pointer-events: none;"></span><span class="${now ? 'sparks' : ''}" aria-hidden="true" style="position: absolute; inset: -14px; pointer-events: none;">${S.daySparks(C, I)}</span>`;
-    else if (open) cell = `<button type="button" class="todayBtn" data-act="stamp" aria-label="${esc(T.stampTodayAria)}" style="width: 52px; height: 52px; box-sizing: border-box; border-radius: 9999px; border: 2px dashed var(--primary-default); background: var(--primary-mutedDefault); color: var(--primary-default); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0;">${S.todayStar(C, I)}</button>`;
-    else if (future) cell = `<span aria-hidden="true" style="width: 52px; height: 52px; box-sizing: border-box; border-radius: 9999px; border: 2px dashed var(--border-emphasized);"></span>`;
-    else if (gift) cell = `<span aria-hidden="true" style="width: 52px; height: 52px; box-sizing: border-box; border-radius: 9999px; border: 2px dashed var(--secondary-default); background: var(--secondary-mutedDefault); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: 11px; line-height: 13px; font-weight: 700; color: var(--secondary-onMutedDefault);">${S.giftCoin(C, I)}${esc(T.giftBadge)}</span>`;
-    return `<li style="display: flex; flex-direction: column; align-items: center; gap: 4px;"><span style="position: relative; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center;">${cell}</span><span style="font-size: 18px; line-height: 26px; font-weight: ${today ? 700 : 500}; color: ${today ? 'var(--primary-default)' : 'var(--text-faint)'}; white-space: nowrap;">${esc(today ? T.weekToday : name)}</span><span class="sr">${esc(sr)}</span></li>`;
-  }).join('');
-  $('#heroCol').innerHTML = `
-    <p style="margin: 0; font-size: 18px; line-height: 26px; color: var(--primary-mutedDefault);">${esc(T.greeting)}</p>
-    <h1 id="hello-h" style="margin: 0; font-size: 32px; line-height: 44px; font-weight: 700; letter-spacing: 0.25px;">${esc(T.headline)}</h1>
-    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px;">
-      <a href="#" class="ctaMain" style="display: inline-flex; align-items: center; gap: 10px; height: 44px; box-sizing: border-box; padding: 0 20px 0 6px; border-radius: 9999px; background: var(--bg-surface); color: var(--primary-default); font-size: 18px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(0,12,40,.3);"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 9999px; background: var(--primary-default); display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5.5v13l10.5-6.5z" fill="#FFFFFF"></path></svg></span>${esc(T.startButton)}</a>
-    </div>
-    <div class="${slam ? 'thud' : ''}" style="max-width: 780px; border-radius: 16px; background: var(--bg-surface); color: var(--text-default); padding: 16px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; box-shadow: 0 6px 16px rgba(0,12,40,.25);">
-      <div style="flex: 0 0 auto; display: flex; align-items: center; gap: 12px;">
-        <span style="position: relative; flex: 0 0 64px; width: 64px; height: 64px;">
-          <button type="button" id="starBtn" class="starBtn" data-act="spin" aria-label="${esc(T.streakStarAria)}" style="width: 64px; height: 64px; padding: 0; border: 0; border-radius: 9999px; background: transparent; cursor: pointer; display: block;">${S.starBtn(C, I)}</button>
-          <span id="starBurst" aria-hidden="true" style="position: absolute; inset: -12px; pointer-events: none;">${S.starBurst(C, I)}</span>
-        </span>
-        <div>
-          <h2 id="streak-h" style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 600; color: var(--text-default);">${esc(T.streakTitle)}</h2>
-          <p style="margin: 0; display: flex; align-items: baseline; gap: 6px;"><span style="font-size: 40px; line-height: 46px; font-weight: 800; color: var(--primary-default); font-variant-numeric: tabular-nums;">${esc(T.streakNumber)}</span><span style="font-size: 18px; font-weight: 700; color: var(--primary-default);">${esc(T.streakUnit)}</span></p>
-          <p style="margin: 4px 0 0;"><span style="display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 9999px; background: var(--secondary-mutedDefault); color: var(--secondary-onMutedDefault); font-size: 18px; font-weight: 700;">${esc(T.streakHint)}</span></p>
-        </div>
-      </div>
-      <div aria-hidden="true" style="flex: 0 0 1px; align-self: stretch; background: var(--border-subtle);"></div>
-      <div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px 12px;">
-          <h3 style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 700; color: var(--text-default);">${esc(T.weekTitle)}</h3>
-          <span class="${slam ? 'stampBumpA' : ''}" aria-label="${esc(f(T.weekBadgeAria, { n }))}" style="white-space: nowrap; display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 9999px; background: var(--primary-mutedDefault); color: var(--primary-onMutedDefault); font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums;">${esc(f(T.weekBadge, { n }))}</span>
-        </div>
-        <ol class="wkdays" aria-label="${esc(T.weekTitle)}" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px;">${days}</ol>
-      </div>
-    </div>`;
-}
-function spinStar() {
-  const b = $('#starBtn'), s = $('#starBurst'); if (!b) return;
-  b.classList.add('starSpin'); s.classList.add('sparks');
-  clearTimeout(spinStar.t); spinStar.t = setTimeout(() => { b.classList.remove('starSpin'); s.classList.remove('sparks'); }, 760);
-}
-function stampToday() {
-  if (st.stamped) return;
-  st.stamped = true; st.slam = !still();
-  setStatus(f(T.status.stamped, { n: 4 }));
-  renderHero();
-  later(spinStar, 520);
-  later(() => { st.slam = false; renderHero(); }, 1400);
-}
-
-/* ---------- missions ---------- */
-const stubNotch = `radial-gradient(circle at calc(100% - ${stubW}px) 0, #0000 10px, #000 10.5px), radial-gradient(circle at calc(100% - ${stubW}px) 100%, #0000 10px, #000 10.5px)`;
-const articleStyle = `position: relative; overflow: hidden; display: flex; border: 1px solid var(--border-default); border-radius: 16px; background: var(--bg-surface); -webkit-mask: ${stubNotch}; -webkit-mask-composite: source-in; mask: ${stubNotch.replace(/, radial/, ' intersect, radial')};`;
-const notches = (border) => `<span aria-hidden="true" style="position: absolute; left: -12px; top: -12px; width: 22px; height: 22px; box-sizing: border-box; border-radius: 9999px; border: 1px solid ${border};"></span><span aria-hidden="true" style="position: absolute; left: -12px; bottom: -12px; width: 22px; height: 22px; box-sizing: border-box; border-radius: 9999px; border: 1px solid ${border};"></span>`;
-const titleStyle = 'margin: 0; font-size: 22px; line-height: 32px; font-weight: 600; color: var(--text-default); min-height: 64px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;';
-const metaRow = (m, color) => `<div class="mmeta" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 18px; line-height: 28px; color: var(--text-default);"><span style="display: flex; align-items: center; gap: 6px;">${icon('calendar-big-square', 20)}${esc(m.timeLeft)}</span>${badge(color, m.badge)}</div>`;
-const bar = (pct, color, rounded = true) => `<div role="progressbar" aria-label="${esc(T.progressAria)}" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" style="height: 8px; border-radius: 9999px; background: var(--track); overflow: hidden;"><div style="width: ${pct}%; height: 100%; background: ${color}; ${rounded ? 'border-radius: 9999px;' : ''}"></div></div>`;
-function simpleMission(m, extraClass = '', newTag = false) {
-  const [a, b] = String(m.badge).split('/').map(Number), pct = b ? Math.round(a / b * 100) : 0;  // progress bar + badge colour follow the "x/y" badge text
-  const badgeColor = pct ? 'indigo' : 'gray';
-  return `<div class="mwrap ${extraClass}"><article style="${articleStyle}">
-    <div style="flex-grow: 1; min-width: 0; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
-      <h3 style="${titleStyle}">${esc(m.title)}${newTag ? ` <span style="display: inline-flex; align-items: center; height: 22px; padding: 0 8px; margin-left: 4px; border-radius: 9999px; background: var(--primary-mutedDefault); color: var(--primary-onMutedDefault); font-size: 12px; font-weight: 700; vertical-align: 2px;">${esc(T.newTag)}</span>` : ''}</h3>
-      ${metaRow(m, badgeColor)}
-      ${bar(pct, 'var(--primary-default)')}
-      ${fsBtn('secondary', T.missionButton)}
-    </div>
-    <div style="position: relative; flex: 0 0 ${stubW}px; box-sizing: border-box; border-left: 2px dashed var(--secondary-mutedSelected); background: var(--secondary-mutedDefault); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
-      ${notches('var(--border-default)')}${S.emptyCoin(C, I, emptyW, emptyH)}
-      <span style="font-size: 20px; font-weight: 700; color: var(--secondary-onMutedDefault);">${esc(m.reward)}</span>
-    </div></article></div>`;
-}
-function claimMission() {
-  const p = st.phase, claimed = p === 'done', busy = p === 'collect' || p === 'fly';
-  const m = T.mission1;
-  const cls = st.leaving ? 'leave' : '';
-  return `<div class="mwrap ${cls}" id="claimCard"><article style="${articleStyle}">
-    <div style="flex-grow: 1; min-width: 0; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
-      <h3 style="${titleStyle}">${esc(m.title)}</h3>
-      ${metaRow(m, 'success')}
-      ${bar(100, 'var(--success-default)')}
-      ${claimed ? `<p class="rise" style="margin: 4px 0 0; height: 44px; border-radius: 9999px; background: var(--success-mutedDefault); color: var(--success-onMutedPressed); display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 16px; font-weight: 600;">${icon('done-check', 20)}${esc(T.missionDone)}</p>`
-        : fsBtn('primary', busy ? T.claiming : T.claimButton, 'data-act="claim"', busy)}
-    </div>
-    <div style="position: relative; flex: 0 0 ${stubW}px; box-sizing: border-box; border-left: 2px dashed ${claimed ? 'var(--success-mutedPressed)' : 'var(--border-emphasized)'}; background: ${claimed ? 'var(--success-mutedDefault)' : 'var(--primary-default)'}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: background .3s ease;">
-      ${notches('var(--border-default)')}
-      ${claimed ? `<span class="rise" style="width: 52px; height: 52px; border-radius: 9999px; background: var(--success-pressed); color: #FFFFFF; display: flex; align-items: center; justify-content: center;">${icon('done-check', 28)}</span><span style="font-size: 13px; font-weight: 600; color: var(--success-onMutedPressed);">${esc(T.claimedStub)}</span>`
-        : `<div id="stub" style="position: relative; width: ${CONFIG.coinSize}px; height: ${coinH}px; perspective: 600px;">
-            <div class="float" style="width: ${CONFIG.coinSize}px; height: ${coinH}px;">
-              <button type="button" class="coinbtn" data-act="claim" aria-label="${esc(f(T.claimCoinAria, { n: reward() }))}" ${busy ? 'disabled' : ''} style="width: ${CONFIG.coinSize}px; height: ${coinH}px;">
-                <div class="press" style="width: 100%; height: 100%;"><div class="coin3d lift ${busy ? 'collect' : ''}" style="width: 100%; height: 100%;">${S.bigCoin(C, I, CONFIG.coinSize, coinH)}</div></div>
-              </button>
-            </div>
-            <div class="${busy ? 'sparks' : ''}" aria-hidden="true" style="position: absolute; inset: -18px; pointer-events: none;">${S.missionSparks(C, I)}</div>
-          </div>
-          <span style="font-size: 20px; font-weight: 700; color: #FFFFFF;">${esc(m.reward)}</span>`}
-    </div></article></div>`;
-}
-function renderMissions() {
-  const cards = [];
-  if (!st.gone) cards.push(claimMission());
-  else cards.push(simpleMission(T.missionNew, 'enter', true));
-  cards.push(simpleMission(T.mission2));
-  cards.push(simpleMission(T.mission3));
-  $('#missionsSec').innerHTML = `
-    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;"><h2 id="missions-h" style="margin: 0; font-size: 30px; line-height: 42px; font-weight: 600; color: var(--primary-default);">${esc(T.missionsTitle)}</h2></div>
-    <div class="mgrid" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;">${cards.join('')}</div>`;
-}
-function setCount(n) {
-  st.count = n;
-  $('#count').textContent = n;
-  $('#coinChip').setAttribute('aria-label', f(T.coinChipAria, { n }));
-  [$('#count'), $('#coinIcon')].forEach((el) => { el.classList.remove('bumpA', 'bumpB'); void el.offsetWidth; el.classList.add(n % 2 ? 'bumpA' : 'bumpB'); });
-}
-const nextNote = () => T.status.nextNew;
-function retire() {
-  const done = () => { st.gone = true; st.leaving = false; renderMissions(); setStatus(f(T.status.missionDone, { next: nextNote() })); };
-  if (still()) return done();
-  st.leaving = true; const c = $('#claimCard'); if (c) c.classList.add('leave');
-  later(done, 460);
-}
-function claim() {
-  if (st.phase !== 'ready') return;
-  const start = st.count;
-  if (still()) {
-    st.phase = 'done'; st.plus++; setCount(start + reward());
-    setStatus(f(T.status.claimed, { n: reward(), total: start + reward() })); renderMissions(); later(retire, 1200); return;
-  }
-  st.phase = 'collect'; setStatus(T.status.claiming); renderMissions();
-  later(() => fly(start), 560);
-}
-function fly(start) {
-  st.phase = 'fly';
-  const root = $('#root'), stub = $('#stub'), counter = $('#coinIcon');
-  const r = reward(), n = Math.min(r, 5);   // one flying coin per Starcoin (max 5 so the animation stays tidy)
-  let last = 620, arrivals = [0, 1, 2, 3, 4].slice(0, n).map((i) => 300 + i * 80);
-  if (root && stub && counter) {
-    const rr = root.getBoundingClientRect(), k = root.offsetWidth ? rr.width / root.offsetWidth : 1;
-    const sr = stub.getBoundingClientRect(), cr2 = counter.getBoundingClientRect();
-    const sx = (sr.left + sr.width / 2 - rr.left) / k, sy = (sr.top + sr.height / 2 - rr.top) / k;
-    const ex = (cr2.left + cr2.width / 2 - rr.left) / k, ey = (cr2.top + cr2.height / 2 - rr.top) / k;
-    const jx = [-16, 12, -4, 18, 2], jy = [-4, 10, 14, -10, 0], half = 13.5; last = 0; arrivals = [];
-    $('#fly').innerHTML = jx.slice(0, n).map((ox, i) => {
-      const x = sx + ox, y = sy + jy[i], delay = i * 80, dur = 720 + i * 30;
-      last = Math.max(last, delay + dur); arrivals.push(delay + dur);
-      const d = `--dur:${dur}ms;animation-delay:${delay}ms;`;
-      return `<div class="flyx" style="position:absolute;left:${x - half}px;top:${y - half}px;--dx:${ex - x}px;${d}"><div class="flyy" style="--dy:${ey - y}px;${d}">${S.flyCoin(C, I, 27, `display:block;filter:drop-shadow(0 3px 4px rgba(0,12,40,.3));${d}`)}</div></div>`;
-    }).join('');
-  }
-  arrivals.forEach((a, i) => later(() => setCount(start + Math.round((i + 1) * r / n)), a - 40));
-  later(() => {
-    st.phase = 'done'; st.plus++; $('#plus').classList.add('plusOn');
-    setStatus(f(T.status.claimed, { n: r, total: start + r })); renderMissions(); later(retire, 1500);
-  }, last);
-  later(() => { $('#fly').innerHTML = ''; }, last + 200);
+  <dialog id="fm" class="fmodal" aria-labelledby="fm-title" aria-describedby="fm-sub"></dialog>`;
 }
 
 /* ---------- assignments ---------- */
-const assignData = () => T.assignments.map((a) => Object.assign({}, a, { due: new Date(a.due) }));
-const subjects = () => Array.from(new Set(assignData().map((a) => a.subject))).sort((x, y) => x.localeCompare(y, 'th'));
-const TABS = [['todo', 'document-pencil-right-top'], ['late', 'alarm-clock-time-timer'], ['done', 'checkmark-done-check-circle']];
+const assignData = () => T.assignments.filter((a) => a.state === 'todo').map((a) => Object.assign({}, a, { due: new Date(a.due) }));
+const subjOk = (a) => !st.subjects.length || st.subjects.includes(a.subject);
 function renderAssign(focusId) {
-  const tab = st.atab, subj = st.subject;
-  const list = assignData().filter((a) => (subj === 'all' || a.subject === subj) && a.state === tab).sort((x, y) => (tab === 'done' ? y.due - x.due : x.due - y.due));
-  const opts = [{ value: 'all', label: T.filterAllMenu }].concat(subjects().map((v) => ({ value: v, label: v })));
-  const menu = st.menuOpen ? `<div aria-hidden="true" data-act="closeMenu" style="position: fixed; inset: 0; z-index: 29;"></div>
-    <ul role="listbox" aria-label="${esc(T.filterListAria)}" class="rise" style="position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 260px; margin: 0; padding: 6px; list-style: none; border: 1px solid var(--border-default); border-radius: 12px; background: var(--bg-surface); box-shadow: 0 8px 24px rgba(0,0,0,.12);">
-      ${opts.map((o) => { const on = subj === o.value; return `<li role="option" aria-selected="${on}" tabindex="0" class="filterOpt" data-opt="${esc(o.value)}" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; cursor: pointer; font-size: 18px; line-height: 28px; font-weight: ${on ? 600 : 400}; color: ${on ? 'var(--primary-default)' : 'var(--text-default)'}; background: ${on ? 'var(--primary-mutedDefault)' : 'transparent'};">${esc(o.label)}<span aria-hidden="true" style="font-weight: 700;">${on ? '✓' : ''}</span></li>`; }).join('')}
-    </ul>` : '';
-  const tabs = TABS.map(([id, ic]) => { const on = tab === id; return `<button type="button" role="tab" id="atab-${id}" class="stab" data-tab="${id}" aria-selected="${on}" tabindex="${on ? 0 : -1}" style="position: relative; display: inline-flex; align-items: center; gap: 8px; height: 52px; padding: 0 2px; border: 0; background: transparent; cursor: pointer; font: ${on ? 600 : 400} 20px/30px var(--font-sans); color: ${on ? 'var(--text-default)' : 'var(--text-subtle)'}; z-index: 1;">${icon(ic, 20)}${esc(T.tabs[id])}<span aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: ${on ? 'var(--primary-default)' : 'transparent'};"></span></button>`; }).join('');
+  const n = st.subjects.length;
+  const list = assignData().filter(subjOk).sort((x, y) => x.due - y.due).slice(0, 4);
   const cards = list.map((a) => {
-    const pct = Math.round(a.done / a.total * 100), p2 = (n) => String(n).padStart(2, '0');
+    const pct = Math.round(a.done / a.total * 100), p2 = (v) => String(v).padStart(2, '0');
     const date = `${T.weekdaysShort[a.due.getDay()]} ${a.due.getDate()} ${T.monthsShort[a.due.getMonth()]} ${a.due.getFullYear() + 543}`;
     const time = `${p2(a.due.getHours())}:${p2(a.due.getMinutes())}${T.timeSuffix}`;
     return `<li class="acard af-scope" style="min-width: 0; display: flex; flex-direction: column; gap: 14px; padding: 20px; border: 1px solid var(--border-default); border-radius: 16px; background: var(--bg-surface);">
-      <p style="margin: 0 0 -6px; font-size: 18px; line-height: 28px; font-weight: 600; color: var(--fn-information-inverted, #0A66C2);">${esc(a.subject)}</p>
-      <h3 style="margin: 0; font-size: 22px; line-height: 32px; font-weight: 600; color: var(--text-base-default); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 64px;">${esc(a.title)}</h3>
-      <dl style="margin: 0; display: flex; flex-wrap: wrap; gap: 6px 18px; font-family: 'Sarabun', var(--font-sans); font-size: 18px; line-height: 28px; color: var(--text-base-subtle);">
+      <p title="${esc(a.subject)}" style="margin: 0 0 -6px; font-size: 18px; line-height: 28px; height: 28px; font-weight: 600; color: var(--fn-information-inverted, #0A66C2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(a.subject)}</p>
+      <h3 style="margin: 0; font-size: 22px; line-height: 32px; font-weight: 600; color: var(--text-base-default); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 64px; height: 64px; flex: 0 0 64px;">${esc(a.title)}</h3>
+      <dl style="margin: 0; display: flex; flex-wrap: wrap; gap: 0 14px; min-height: 28px; font-family: 'Sarabun', var(--font-sans); font-size: 18px; line-height: 28px; color: var(--text-base-subtle);">
         <div style="display: flex; align-items: center; gap: 6px;"><dt style="display: flex;">${icon('calendar-big-square', 20)}<span class="sr">${esc(T.dueDateSr)}</span></dt><dd style="margin: 0;">${esc(date)}</dd></div>
         <div style="display: flex; align-items: center; gap: 6px;"><dt style="display: flex;">${icon('clock-time-timer-fast', 20)}<span class="sr">${esc(T.dueTimeSr)}</span></dt><dd style="margin: 0;">${esc(time)}</dd></div>
       </dl>
-      ${progressBar(pct, `${a.done} / ${a.total} ${T.progressUnit}`, pct + '%', a.state === 'done' ? 'positive' : 'accent')}
-      ${fsBtn('secondary', T.cardButton[a.state], 'style="margin-top: auto;"')}
+      ${progressBar(pct, `${a.done} / ${a.total} ${T.progressUnit}`, pct + '%', 'accent')}
+      <div aria-hidden="true" style="flex-grow: 1; margin-top: -14px;"></div>
+      ${fsBtn('secondary', T.cardButton)}
     </li>`;
   }).join('');
   $('#assignSec').innerHTML = `
     <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;">
-      <div style="display: flex; align-items: center; gap: 10px;"><h2 id="assign-h" style="margin: 0; font-size: 30px; line-height: 42px; font-weight: 600; color: var(--primary-default);">${esc(T.assignTitle)}</h2></div>
-      <div class="af-scope" style="position: relative; display: flex; align-items: center; gap: 12px;">
-        <span id="afilter-label" style="font-size: 18px; line-height: 28px; color: var(--text-base-subtle);">${esc(T.filterPrefix)}</span>
-        <button type="button" id="filterBtn" data-act="toggleMenu" class="af-btn af-btn--secondary-accent af-btn--lg" aria-haspopup="listbox" aria-expanded="${st.menuOpen}" aria-label="${esc(f(T.filterButtonAria, { value: subj === 'all' ? T.filterAllMenu : subj }))}"><span class="af-btn-label">${esc(subj === 'all' ? T.filterPlaceholder : subj)}</span></button>
-        ${menu}
+      <h2 id="assign-h" style="${H2}">${esc(T.assignTitle)}</h2>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 18px; line-height: 28px; color: var(--text-subtle);">${esc(T.filterPrefix)}</span>
+        <button type="button" id="filterBtn" class="filterTrigger" data-act="openFilter" aria-haspopup="dialog" aria-label="${esc(T.filterButtonAria + (n ? f(T.filterCountAria, { n }) : ''))}" style="display: inline-flex; align-items: center; gap: 10px; height: 48px; box-sizing: border-box; padding: 0 ${n ? 10 : 18}px 0 16px; border-radius: 12px; border: ${n ? '2px solid var(--primary-pressed)' : '1px solid var(--border-default)'}; background: var(--bg-surface); color: var(--text-default); font: 600 18px/26px 'Sarabun', system-ui, sans-serif; cursor: pointer;"><svg viewBox="0 0 32 32" width="24" height="24" aria-hidden="true"><path d="M7 5h18a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2"></path><text x="16" y="20.5" text-anchor="middle" font-size="11" font-weight="700" fill="currentColor" font-family="Sarabun, sans-serif">กฮ</text></svg>${esc(T.filterPlaceholder)}${n ? `<span aria-hidden="true" style="display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 28px; padding: 0 6px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--border-default); font-size: 16px; font-weight: 600;">${n}</span>` : ''}</button>
       </div>
     </div>
-    <div role="tablist" class="tabline" aria-label="${esc(T.tabsAria)}" style="position: relative; display: flex; gap: 32px; margin-bottom: 24px;">${tabs}</div>
-    ${list.length ? '' : `<div style="padding: 40px 24px; border: 1px dashed var(--border-emphasized); border-radius: 16px; background: var(--bg-surface); text-align: center;"><p style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 600;">${esc(T.empty[tab].title)}</p><p style="margin: 4px 0 0; font-size: 16px; line-height: 24px; color: var(--text-subtle);">${esc(T.empty[tab].text)}</p></div>`}
-    <ol class="agrid" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;">${cards}</ol>`;
+    ${list.length ? '' : `<div style="padding: 40px 24px; border: 1px dashed var(--border-emphasized); border-radius: 16px; background: var(--bg-surface); text-align: center;"><p style="margin: 0; font-size: 18px; line-height: 28px; font-weight: 600;">${esc(T.emptyTitle)}</p><p style="margin: 4px 0 0; font-size: 16px; line-height: 24px; color: var(--text-subtle);">${esc(T.emptyText)}</p></div>`}
+    <ol class="agrid" style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px;">${cards}</ol>`;
   if (focusId) { const el = document.getElementById(focusId); if (el) el.focus(); }
 }
-function pickTab(id, focus) { st.atab = id; setStatus(f(T.status.showTab, { tab: T.tabs[id] })); renderAssign(focus ? 'atab-' + id : null); }
-function pickSubject(v) {
-  st.subject = v; st.menuOpen = false;
-  setStatus(v === 'all' ? T.status.showAllSubjects : f(T.status.showSubject, { subject: v }));
-  renderAssign('filterBtn');
+
+/* ---------- filter dialog (native <dialog>: focus trap + Esc for free; ticks only apply on "เลือกตัวกรอง") ---------- */
+const FF = "font: 600 18px/26px 'Sarabun', system-ui, sans-serif;";
+function renderModal(focusOpt) {
+  const tiles = T.subjectGroups.map((g, i) => {
+    const on = st.draft.includes(g.label);
+    return `<button type="button" role="checkbox" aria-checked="${on}" class="subjTile" data-opt="${i}" style="position: relative; min-height: 120px; padding: 40px 12px 16px; border-radius: 12px; border: ${on ? '2px solid var(--primary-default)' : '1px solid var(--border-default)'}; background: ${on ? 'var(--primary-mutedDefault)' : 'var(--bg-muted)'}; color: var(--text-default); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font: 400 18px/26px 'Sarabun', system-ui, sans-serif; text-align: center;">
+      <span aria-hidden="true" style="position: absolute; left: 12px; top: 12px; width: 24px; height: 24px; box-sizing: border-box; border-radius: 6px; border: ${on ? '0' : '1.5px solid var(--border-emphasized)'}; background: ${on ? 'var(--primary-default)' : 'var(--bg-surface)'}; display: flex; align-items: center; justify-content: center;"><svg viewBox="0 0 24 24" width="16" height="16" style="opacity: ${on ? 1 : 0};"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></span>
+      <svg viewBox="0 0 32 32" width="36" height="36" aria-hidden="true" style="color: ${on ? 'var(--primary-default)' : 'var(--text-subtle)'};"><path d="${g.icon}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      <span>${esc(g.label)}</span></button>`;
+  }).join('');
+  const none = !st.draft.length;
+  $('#fm').innerHTML = `
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 24px 16px; border-bottom: 1px solid var(--border-default);">
+      <div>
+        <h2 id="fm-title" style="margin: 0; font-size: 26px; line-height: 36px; font-weight: 700; color: var(--text-default);">${esc(T.filterTitle)}</h2>
+        <p id="fm-sub" style="margin: 2px 0 0; font-size: 18px; line-height: 28px; color: var(--text-subtle);">${esc(T.filterSub)}</p>
+      </div>
+      <button type="button" class="iconBtn" data-act="closeFilter" aria-label="${esc(T.filterClose)}" style="width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--text-default); display: flex; align-items: center; justify-content: center; cursor: pointer;"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></button>
+    </div>
+    <div role="group" aria-labelledby="fm-sub" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 24px;">${tiles}</div>
+    <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px 24px; border-top: 1px solid var(--border-default);">
+      <button type="button" class="linkBtn" data-act="clearDraft" ${none ? 'disabled' : ''} style="height: 44px; padding: 0 4px; border: 0; background: transparent; ${FF} color: ${none ? 'var(--text-faint)' : 'var(--primary-default)'}; cursor: pointer;">${esc(T.filterClear)}</button>
+      <div style="display: flex; gap: 12px;">
+        <button type="button" class="ghostBtn" data-act="closeFilter" style="height: 48px; min-width: 120px; padding: 0 24px; border-radius: 9999px; border: 1px solid var(--border-default); background: var(--bg-surface); color: var(--text-default); ${FF} cursor: pointer;">${esc(T.filterCancel)}</button>
+        <button type="button" class="solidBtn" data-act="applyFilter" style="height: 48px; min-width: 140px; padding: 0 24px; border-radius: 9999px; border: 0; background: var(--primary-default); color: var(--primary-onDefault); ${FF} cursor: pointer;">${esc(T.filterApply)}</button>
+      </div>
+    </div>`;
+  if (focusOpt != null) { const el = $(`[data-opt="${focusOpt}"]`, $('#fm')); if (el) el.focus(); }
 }
+function toggleSubject(i) {
+  const v = T.subjectGroups[i].label, k = st.draft.indexOf(v);
+  if (k >= 0) st.draft.splice(k, 1); else st.draft.push(v);
+  renderModal(i);
+}
+function applyFilter() {
+  st.subjects = st.draft.slice();
+  setStatus(st.subjects.length ? f(T.status.filtered, { subjects: st.subjects.join(', ') }) : T.status.filterCleared);
+  $('#fm').close(); renderAssign('filterBtn');
+}
+
+/* ---------- my courses ---------- */
+const courseCard = (c) => {
+  const MC = T.myCourses, CT = T.courses, pct = Math.round(c.done / c.lessons * 100);
+  return `<li style="min-width: 0; display: flex;"><article class="af-course scard" style="width: 100%;">
+    <div class="af-course-cover"><img class="af-course-img" src="${COVERS[c.cover]}" alt="">
+      <span style="position: absolute; left: 0; top: 0; padding: 4px 16px; border-radius: 0 0 14px 0; background: ${TAG_COLOR[c.cover] || 'var(--primary-default)'}; color: #FFFFFF; font: 700 28px/40px var(--font-sans); letter-spacing: .25px;">${esc(CT.gradeTag)}</span>
+      <span class="af-course-menu"><button type="button" class="af-btn af-btn--secondary-accent af-btn--md af-btn--icon-only" aria-label="${esc(f(CT.menuAria, { title: c.title }))}">${afIcon('icon-dots-horizontal', 20)}</button></span></div>
+    <div class="af-course-meta">
+      <div class="af-course-subject" title="${esc(c.subject)}" style="font-size: 18px; line-height: 28px; height: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${esc(c.subject)}</div>
+      <h3 class="af-course-title" style="font-size: 20px; line-height: 28px; height: 56px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${esc(c.title)}</h3>
+      <p style="margin: 0; padding-top: 12px; display: flex; align-items: center; gap: 6px; font-size: 18px; line-height: 28px; color: var(--text-base-subtle);">${icon('book-open', 20)}${esc(f(MC.lessons, { n: c.lessons }))}</p>
+      <div class="af-course-foot mcfoot">${progressBar(pct, f(MC.progress, c), pct + '%', 'accent')}<button type="button" class="af-btn af-btn--secondary-accent af-btn--lg"><span class="af-btn-label">${esc(MC.cardButton[c.done >= c.lessons ? 'done' : 'doing'])}</span></button></div>
+    </div></article></li>`;
+};
 
 /* ---------- boot + events ---------- */
 const root = $('#root');
 kitMount(root, CONFIG.reduceMotion);
 root.innerHTML = shell();
-renderHero(); renderMissions(); renderAssign();
+renderAssign();
 
 root.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-act],[data-tab],[data-opt]'); if (!t) return;
-  if (t.dataset.tab) return pickTab(t.dataset.tab);
-  if (t.dataset.opt !== undefined) return pickSubject(t.dataset.opt);
+  const fm = $('#fm');
+  if (e.target === fm) return fm.close();   // click on the backdrop
+  const t = e.target.closest('[data-act],[data-opt]'); if (!t) return;
+  if (t.dataset.opt !== undefined) return toggleSubject(+t.dataset.opt);
   const a = t.dataset.act;
-  if (a === 'claim') claim();
-  else if (a === 'stamp') stampToday();
-  else if (a === 'spin') spinStar();
-  else if (a === 'toggleMenu') { st.menuOpen = !st.menuOpen; renderAssign('filterBtn'); }
-  else if (a === 'closeMenu') { st.menuOpen = false; renderAssign(); }
+  if (a === 'openFilter') { st.draft = st.subjects.slice(); renderModal(); fm.showModal(); }
+  else if (a === 'closeFilter') fm.close();
+  else if (a === 'clearDraft') { st.draft = []; renderModal(); }
+  else if (a === 'applyFilter') applyFilter();
 });
-root.addEventListener('keydown', (e) => {
-  const tab = e.target.closest('[data-tab]');
-  if (tab && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
-    e.preventDefault();
-    const ids = TABS.map((x) => x[0]), i = ids.indexOf(st.atab);
-    return pickTab(ids[(i + (e.key === 'ArrowRight' ? 1 : ids.length - 1)) % ids.length], true);
-  }
-  const opt = e.target.closest('[data-opt]');
-  if (opt && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); return pickSubject(opt.dataset.opt); }
-  if (st.menuOpen && e.key === 'Escape') { st.menuOpen = false; renderAssign('filterBtn'); }
-});
-if (CONFIG.autoStamp) later(stampToday, still() ? 0 : 900 + kitHoldMs());
-
 </script>
 </body>
 </html>

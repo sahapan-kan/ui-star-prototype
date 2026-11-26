@@ -632,7 +632,7 @@ a:focus-visible,button:focus-visible{outline:4px solid var(--primary-default);ou
 .in1{animation-delay:.05s}.in2{animation-delay:.15s}.in3{animation-delay:.25s}
 @keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 }
-.acard .af-progress-fill{background:var(--primary-default) !important}
+.acard .af-progress-fill{background:var(--secondary-default) !important}
 .mmeta .fs-badge{font-size:18px !important;line-height:28px !important;height:auto !important;padding:0 12px !important}
 main .fs-btn,main .fs-btn *{font-size:18px !important}
 html,body,body *,.af-scope,.af-scope *{font-family:'Sarabun',system-ui,sans-serif !important}
@@ -741,8 +741,39 @@ html,body,body *,.af-scope,.af-scope *{font-family:'Sarabun',system-ui,sans-seri
 .cgrid .af-course-foot .af-btn:hover {background:var(--primary-hover) !important;border-color:var(--primary-hover) !important}
 .cgrid .af-course-foot .af-btn:active {background:var(--primary-pressed) !important;border-color:var(--primary-pressed) !important}
 .cgrid .af-progress-fill {background:var(--secondary-default) !important}
+/* ===== home: 4-up assignments, filter dialog, my-courses cards ===== */
+@media (max-width:1200px){.agrid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+@media (max-width:640px){.agrid{grid-template-columns:minmax(0,1fr) !important}}
+.filterTrigger:hover,.ghostBtn:hover,.iconBtn:hover{background:var(--bg-overlay-hover) !important}
+.filterTrigger:focus-visible,.subjTile:focus-visible,.ghostBtn:focus-visible,.solidBtn:focus-visible,.linkBtn:focus-visible,.iconBtn:focus-visible{outline:3px solid var(--primary-default);outline-offset:2px}
+.subjTile:hover{filter:brightness(.98)}
+.solidBtn:hover{background:var(--primary-hover) !important}
+.linkBtn:disabled{cursor:default}
+.fmodal{width:680px;max-width:calc(100% - 32px);max-height:calc(100% - 32px);padding:0;border:0;border-radius:20px;background:var(--bg-surface);color:var(--text-default);box-shadow:0 24px 48px rgba(10,13,18,.24)}
+.fmodal::backdrop{background:rgba(10,13,18,.45)}
+@media (prefers-reduced-motion:no-preference){
+.motion .fmodal[open]{animation:fmIn .22s cubic-bezier(.2,.8,.2,1) both}
+.motion .fmodal[open]::backdrop{animation:fmFade .2s ease both}
+@keyframes fmIn{from{opacity:0;transform:scale(.98) translateY(8px)}}
+@keyframes fmFade{from{opacity:0}}}
+@media (max-width:720px){.fmodal [role=group]{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+.cgrid.hgrid .af-course{box-shadow:none !important;filter:drop-shadow(0 1px 2px rgba(0,0,0,.1)) drop-shadow(0 2px 12px rgba(0,0,0,.1));transition:transform .18s cubic-bezier(.2,.8,.2,1),filter .18s ease;container-type:inline-size}
+.cgrid.hgrid .af-course:hover{transform:translateY(-3px);filter:drop-shadow(0 2px 4px rgba(0,0,0,.1)) drop-shadow(0 10px 20px rgba(0,0,0,.14))}
+@media (prefers-reduced-motion:reduce){.cgrid.hgrid .af-course:hover,.acard:hover{transform:none}}
+.cgrid.hgrid .af-course-foot.mcfoot{display:flex !important;flex-direction:row !important;align-items:flex-end !important;flex-wrap:wrap !important;gap:8px !important}
+.hgrid .mcfoot .af-progress{flex:1 1 auto !important;min-width:max-content !important;width:auto !important}
+.hgrid .mcfoot .af-progress-head,.hgrid .mcfoot .af-progress-label,.hgrid .mcfoot .af-progress-value{font-size:var(--fs,18px) !important;line-height:28px !important}
+.hgrid .mcfoot .af-progress-label{white-space:nowrap}
+.cgrid.hgrid .af-course-foot .af-btn{flex:0 0 auto !important;width:auto !important;height:44px !important;padding:0 var(--bp,14px) !important;justify-content:center;white-space:nowrap;background:var(--bg-surface) !important;border:1px solid var(--border-default) !important;color:var(--primary-default) !important;border-radius:9999px !important}
+.cgrid.hgrid .af-course-foot .af-btn,.cgrid.hgrid .af-course-foot .af-btn *{font-size:var(--fs,18px) !important;line-height:28px !important}
+.cgrid.hgrid .af-course-foot .af-btn:hover{background:var(--primary-mutedDefault) !important;border-color:var(--primary-mutedSelected) !important}
+.cgrid.hgrid .af-course-foot .af-btn:active{background:var(--primary-mutedSelected) !important;border-color:var(--primary-mutedSelected) !important}
+/* narrow cards: shrink footer text so progress + button stay on one row (wraps only below ~240px) */
+@container (max-width:289px){.mcfoot{--fs:16px;--bp:12px}}
+@container (max-width:269px){.mcfoot{--fs:15px;--bp:12px;gap:6px !important}}
 /* ===== page loader (rocket + 5 stars) + page transition ===== */
 html.ld-on{background:#E8F1FF}
+html{scrollbar-gutter:stable}   /* same viewport width whether a page scrolls or not, so the fixed loader is identical on every page */
 html.ld-on body{background:#E8F1FF}
 html.ld-hold .in1,html.ld-hold .in2,html.ld-hold .in3{animation:none;opacity:1}   /* under the loader the page already sits in its final place */
 html.ld-done .in1,html.ld-done .in2,html.ld-done .in3{animation:none;will-change:auto}   /* ...then appears already in place (no slide-in = no shift) */
