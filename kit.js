@@ -17,7 +17,6 @@ const CONFIG = {
   contentGrow: 0.95,       // on screens wider than 1440px the content gets this share of the extra width (0 = stay 1240, 1 = fill the screen)
   contentCap: 2000,        // ...but never wider than this (px)
   loaderMs: 800,           // rocket + stars loader: how long it plays when a page opens / changes (0 = no loader)
-  loaderMinMs: 450,        // ...and never shorter than this, so the stars always get to fill
   startCoins: 128,         // Starcoin balance shown in the top bar when a page opens
   reduceMotion: false      // true = turn all animation off
 };
@@ -150,15 +149,10 @@ function kitMount(root, motionOff) {
 
 /* =====================================================================
  * Page loader: rocket + 5 stars (from the designer's "STAR Loading" artboard).
- * Shown when a page opens and when you click a menu / breadcrumb link, so every
- * page change plays the same short animation. Timing -> CONFIG.loaderMs.
+ * Each destination page owns its splash. Timing -> CONFIG.loaderMs.
  * ===================================================================== */
-const LD_KEY = 'starNavAt';       // time of the click that left the previous page (sessionStorage)
-const LD_COVER = 100;             // ms the loader takes to fade in over the page you are leaving
 const LD_FADE = 140;              // ms the loader takes to fade out
 const LD_MAXWAIT = 4000;          // never keep the loader up longer than this, even if a font / image is stuck
-let kitRevealAt = 0;
-const kitHoldMs = () => Math.max(0, kitRevealAt - Date.now());   // ms until the page underneath is revealed
 
 const ldMotion = () => {
   if (CONFIG.reduceMotion || !(CONFIG.loaderMs > 0)) return false;
@@ -249,14 +243,6 @@ function ldHTML(hold) {
   </div>`;
 }
 
-/* put the loader on screen. cover = true: fade in over the page you are leaving (stars wait); otherwise show at once and fill the stars over `hold` ms */
-function ldShow(cover, hold) {
-  const old = document.getElementById('ldr'); if (old) old.remove();
-  document.body.insertAdjacentHTML('beforeend', ldHTML(hold || CONFIG.loaderMs));
-  const el = document.getElementById('ldr');
-  if (cover) { el.classList.add('wait', 'in'); void el.offsetWidth; el.classList.remove('in'); }
-  else el.classList.add('go');
-}
 /* run cb once the page underneath is settled: fonts swapped in, images decoded, window loaded (capped so a slow network never traps you) */
 function ldWhenReady(cb) {
   let done = false;
@@ -275,44 +261,25 @@ function ldHide() {
   const el = document.getElementById('ldr'), h = document.documentElement;
   h.classList.add('ld-done');                        // the loader is the transition: the page appears fully laid out, nothing slides in
   h.classList.remove('ld-hold');
-  if (!el) { h.classList.remove('ld-on'); return; }
+  if (!el) return;
   el.classList.add('out');
-  setTimeout(() => { el.remove(); h.classList.remove('ld-on'); }, LD_FADE + 40);
+  setTimeout(() => el.remove(), LD_FADE + 40);
 }
 
-/* a click on a link to another page: cover the screen, then go */
-document.addEventListener('click', (e) => {
-  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !ldMotion()) return;
-  const a = e.target.closest('a[href]');
-  if (!a || a.hasAttribute('data-soon') || a.hasAttribute('download') || (a.target && a.target !== '_self') || a.getAttribute('aria-current') === 'page') return;
-  let u; try { u = new URL(a.href, location.href); } catch (er) { return; }
-  if (u.origin !== location.origin || u.pathname === location.pathname) return;
-  e.preventDefault();
-  if (document.getElementById('ldr')) return;           // already on its way
-  try { sessionStorage.setItem(LD_KEY, String(Date.now())); } catch (er) { /* storage blocked: the new page just plays a full loader */ }
-  ldShow(true);
-  setTimeout(() => { location.href = a.href; }, LD_COVER);
-});
-
-/* coming back with the browser's back button can restore a page that still has the loader on it */
+/* A page restored from the back-forward cache is ready to display. */
 addEventListener('pageshow', (e) => {
   if (!e.persisted) return;
   const el = document.getElementById('ldr'); if (el) el.remove();
-  document.documentElement.classList.remove('ld-on', 'ld-hold');
+  document.documentElement.classList.remove('ld-hold');
 });
 
-/* this page just opened */
-(function ldBoot() {
-  const h = document.documentElement;
-  if (!ldMotion()) { h.classList.remove('ld-on', 'ld-hold'); return; }
-  let t0 = 0;
-  try { t0 = Number(sessionStorage.getItem(LD_KEY)) || 0; sessionStorage.removeItem(LD_KEY); } catch (er) { t0 = 0; }
-  const used = t0 && Date.now() - t0 < 5000 ? Date.now() - t0 : 0;     // time already spent since the click
-  const hold = Math.max(CONFIG.loaderMinMs, CONFIG.loaderMs - used);
-  kitRevealAt = Date.now() + hold;
-  ldShow(false, hold);
-  setTimeout(() => ldWhenReady(ldHide), hold);
-})();
+/* Mount the splash before parsing the page underneath it. */
+function ldBoot() {
+  if (!ldMotion()) return;
+  document.documentElement.classList.add('ld-hold');
+  document.body.insertAdjacentHTML('beforeend', ldHTML(CONFIG.loaderMs));
+  setTimeout(() => ldWhenReady(ldHide), CONFIG.loaderMs);
+}
 
 /* ===== illustrations: coins, stars, astronaut ===== */
 const S = {

@@ -772,36 +772,31 @@ html,body,body *,.af-scope,.af-scope *{font-family:'Sarabun',system-ui,sans-seri
 @container (max-width:289px){.mcfoot{--fs:16px;--bp:12px}}
 @container (max-width:269px){.mcfoot{--fs:15px;--bp:12px;gap:6px !important}}
 /* ===== page loader (rocket + 5 stars) + page transition ===== */
-html.ld-on{background:#E8F1FF}
 html{scrollbar-gutter:stable}   /* same viewport width whether a page scrolls or not, so the fixed loader is identical on every page */
-html.ld-on body{background:#E8F1FF}
 html.ld-hold .in1,html.ld-hold .in2,html.ld-hold .in3{animation:none;opacity:1}   /* under the loader the page already sits in its final place */
 html.ld-done .in1,html.ld-done .in2,html.ld-done .in3{animation:none;will-change:auto}   /* ...then appears already in place (no slide-in = no shift) */
-.ld{position:fixed;inset:0;z-index:1000;background:#E8F1FF;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:'Sarabun',system-ui,sans-serif;opacity:1;transition:opacity .1s ease-out}
-.ld.in{opacity:0}
+.ld{position:fixed;inset:0;z-index:1000;background:#E8F1FF;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:'Sarabun',system-ui,sans-serif}
 .ld.out{opacity:0;pointer-events:none;transition:opacity .14s ease-in}
 .ld-main{transform:scale(1);transition:transform .14s cubic-bezier(.2,.8,.2,1)}
-.ld.in .ld-main{transform:scale(.95)}
 .ld.out .ld-main{transform:scale(1.06)}
 .ld-bar svg{filter:drop-shadow(0 3px 4px rgba(0,77,178,.28));overflow:visible}
 .ld-rocket{filter:drop-shadow(0 0 10px rgba(255,255,255,.9)) drop-shadow(0 14px 18px rgba(0,55,131,.38));animation:ldFly .9s linear infinite;will-change:transform}
 @keyframes ldFly{0%,100%{transform:translate(0,0)}25%{transform:translate(6px,-7px)}50%{transform:translate(12px,-4px)}75%{transform:translate(6px,3px)}}
-.ld-puff{transform-box:fill-box;transform-origin:center;animation:ldPuff .5s cubic-bezier(.22,.61,.36,1) infinite}
+.ld-puff{transform-box:fill-box;transform-origin:center;animation:ldPuff .5s cubic-bezier(.22,.61,.36,1) infinite backwards}
 .ld-puff.p2{animation-delay:.17s}.ld-puff.p3{animation-delay:.33s}
 @keyframes ldPuff{0%{transform:translate(30px,0) scale(.4);opacity:0}20%{opacity:.95}100%{transform:translate(-80px,28px) scale(1.35);opacity:0}}
 .ld-flame{animation:ldFlame .3s ease-in-out infinite}
 @keyframes ldFlame{0%,100%{transform:scale(1,1)}25%{transform:scale(1.14,.93)}50%{transform:scale(.92,1.05)}75%{transform:scale(1.08,.97)}}
-.ld-trail{animation:ldTrail .45s cubic-bezier(.4,0,.6,1) infinite}
+.ld-trail{animation:ldTrail .45s cubic-bezier(.4,0,.6,1) infinite backwards}
 .ld-trail.t2{animation-delay:.15s}.ld-trail.t3{animation-delay:.3s}
 @keyframes ldTrail{0%{transform:translate(40px,-12px);opacity:0}25%{opacity:1}75%{opacity:.6}100%{transform:translate(-110px,30px);opacity:0}}
-.ld-spark{animation:ldTwinkle .6s ease-in-out infinite}
+.ld-spark{animation:ldTwinkle .6s ease-in-out infinite backwards}
 .ld-spark.s2{animation-delay:.2s}.ld-spark.s3{animation-delay:.4s}
 @keyframes ldTwinkle{0%,100%{opacity:.25;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
 /* the 5 stars fill one after another across --ld-d, each with a small pop */
-.ld-f{transform-box:fill-box;transform-origin:0 50%;transform:scaleX(0)}
-.ld.go .ld-f{animation:ldGrow calc(var(--ld-d) / 5) cubic-bezier(.4,0,.2,1) both;animation-delay:calc(var(--i) * var(--ld-d) / 5)}
+.ld-f{transform-box:fill-box;transform-origin:0 50%;animation:ldGrow calc(var(--ld-d) / 5) cubic-bezier(.4,0,.2,1) both;animation-delay:calc(var(--i) * var(--ld-d) / 5)}
 @keyframes ldGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.ld.go .ld-s{transform-origin:50% 50%;animation:ldPop calc(var(--ld-d) / 5) cubic-bezier(.34,1.4,.64,1) both;animation-delay:calc(var(--i) * var(--ld-d) / 5)}
+.ld-s{transform-origin:50% 50%;animation:ldPop calc(var(--ld-d) / 5) cubic-bezier(.34,1.4,.64,1) both;animation-delay:calc(var(--i) * var(--ld-d) / 5)}
 @keyframes ldPop{0%,100%{transform:scale(1)}60%{transform:scale(1.16)}}
 @media (max-width:600px){.ld-main{transform-origin:center;zoom:.75}}
 
